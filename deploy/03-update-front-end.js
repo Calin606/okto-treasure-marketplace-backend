@@ -56,12 +56,21 @@ const { network } = require("hardhat")
 // module.exports.tags = ["all", "frontend"]
 
 const frontEndContractsFile = "../nft-marketplace-moralis/constants/networkMapping.json"
+const frontendEndAbiFile = "../nft-marketplace-moralis/constants/"
 
 module.exports = async function() {
     if(process.env.UPDATE_FRONT_END){
         console.log("Updating frontend...")
         await updateContractAddresses()
+        await updateAbi()
     }
+}
+
+async function updateAbi() {
+    const nftMarketplace = await ethers.getContract("NftMarketplace")
+    fs.writeFileSync(`${frontendEndAbiFile}NftMarketplace.json`, nftMarketplace.interface.format(ethers.utils.FormatTypes.json))
+    const basicNft = await ethers.getContract("BasicNft")
+    fs.writeFileSync(`${frontendEndAbiFile}BasicNft.json`, basicNft.interface.format(ethers.utils.FormatTypes.json))
 }
 
 async function updateContractAddresses() {

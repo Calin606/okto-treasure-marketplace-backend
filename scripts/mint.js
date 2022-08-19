@@ -2,34 +2,23 @@
 const { ethers, network } = require('hardhat');
 const { moveBlocks } = require('../utils/move-blocks')
 
-const PRICE = ethers.utils.parseEther("0.1")
-
-async function mintAndList() {
-    //get the contract
-    const nftMarketplace = await ethers.getContract("NftMarketplace")
+async function mint() {
     const basicNft = await ethers.getContract("BasicNft")
     console.log("Minting...")
     //call the mint function from the basic nft
     const mintTx = await basicNft.mintNft()
     //wait one second for minting the nft
     const mintTxReceipt = await mintTx.wait(1)
-    //that is how we get a specific parameter like tokenId after minting
     const tokenId = mintTxReceipt.events[0].args.tokenId
-    console.log("Approving Nft...")
-
-    const approvalTx = await basicNft.approve(nftMarketplace.address, tokenId)
-    await approvalTx.wait(1)
-    console.log("Listing NFT...")
-    const tx = await nftMarketplace.listItem(basicNft.address, tokenId, PRICE)
-    await tx.wait(1)
-    console.log("NFT Listed!")
+    console.log(`Fot TokenID: ${tokenId}`)
+    console.log(`NFT Address: ${basicNft.address}`)
 
     if(network.config.chainId == "31337") {
         await moveBlocks(2, (sleepAmount = 1000))
     }
 }
 
-mintAndList()
+mint()
     .then(() => process.exit(0))
     .catch((error) => {
         console.error(error)
